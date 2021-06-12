@@ -28,9 +28,8 @@ def callback(
     """
     element = json.loads(body)
 
-    file = open(OUTPUT_FILE, 'a')
-    file.writelines([json.dumps(element), '\n'])
-    file.close()
+    FILE.writelines([json.dumps(element), '\n'])
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
     logger.info(f' [x] Received {element} on queue {QUEUE_NAME}')
 
@@ -48,13 +47,18 @@ if __name__ == '__main__':
     channel = connection.channel()
     logger.info(f'Connected pika consumer to {HOST}')
 
-    channel.queue_declare(queue=QUEUE_NAME)
+    channel.queue_declare(queue=QUEUE_NAME, durable=True)
 
     channel.basic_consume(
         queue=QUEUE_NAME,
-        on_message_callback=callback,
-        auto_ack=True
+        on_message_callback=callback
     )
 
     logger.info(' [*] Waiting for messages on queue.')
-    channel.start_consuming()
+    try:
+        FILE = open(OUTPUT_FILE, 'a', buffering=1)
+        channel.start_consuming()
+    except Exception as e:
+        logger.exception(e)
+    finally:
+        FILE.close()

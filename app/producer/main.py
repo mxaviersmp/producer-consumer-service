@@ -36,7 +36,7 @@ async def startup():
     app.state.channel = app.state.connection.channel()
     logger.info(f'Connected pika producer to {HOST}')
 
-    app.state.channel.queue_declare(queue=QUEUE_NAME)
+    app.state.channel.queue_declare(queue=QUEUE_NAME, durable=True)
 
 
 @app.on_event('shutdown')
@@ -73,7 +73,10 @@ def process(valid_json: Dict):
     app.state.channel.basic_publish(
         exchange='',
         routing_key=QUEUE_NAME,
-        body=json.dumps(valid_json)
+        body=json.dumps(valid_json),
+        properties=pika.BasicProperties(
+            delivery_mode=2
+        )
     )
     logger.info(f'Sent {valid_json} to queue {QUEUE_NAME}')
     return {'result': 'Success'}
