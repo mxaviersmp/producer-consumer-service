@@ -1,8 +1,9 @@
 import json
 from typing import Dict
 
-import pika
+from aio_pika import DeliveryMode, Message, connect_robust
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app.utils.config import SETTINGS
 from app.utils.logger import logger
@@ -24,19 +25,17 @@ async def startup():
 
     Connects to RabbitMQ HOST and to the channel QUEUE_NAME.
     """
-    credentials = pika.PlainCredentials(USERNAME, PASSWORD)
-    app.state.connection = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            host=HOST,
-            credentials=credentials,
-            connection_attempts=RABBITMQ_CONNECTION_ATTEMPTS,
-            retry_delay=RABBITMQ_RETRY_DELAY,
-        )
+    app.state.connection = await connect_robust(
+        host=HOST,
+        login=USERNAME,
+        password=PASSWORD,
+        connection_attempts=RABBITMQ_CONNECTION_ATTEMPTS,
+        retry_delay=RABBITMQ_RETRY_DELAY,
     )
-    app.state.channel = app.state.connection.channel()
+    app.state.channel = await app.state.connection.channel()
     logger.info(f'Connected pika producer to {HOST}')
 
-    app.state.channel.queue_declare(queue=QUEUE_NAME, durable=True)
+    await app.state.channel.declare_queue(QUEUE_NAME, durable=True)
 
 
 @app.on_event('shutdown')
@@ -50,13 +49,19 @@ async def shutdown():
 
 
 @app.get('/')
-def read_root():
+async def read_root():
     """Root endpoint to check status."""
     return {'status': 'ok'}
 
 
+@app.head('/')
+def read_root_head():
+    """Root endpoint HEAD."""
+    return JSONResponse()
+
+
 @app.post('/process')
-def process(valid_json: Dict):
+async def process(valid_json: Dict):
     """
     Published a json message to the queue.
 
@@ -70,13 +75,18 @@ def process(valid_json: Dict):
     json
         Success result if added to queue successfull
     """
-    app.state.channel.basic_publish(
-        exchange='',
-        routing_key=QUEUE_NAME,
-        body=json.dumps(valid_json),
-        properties=pika.BasicProperties(
-            delivery_mode=2
-        )
+    message = Message(
+        json.dumps(valid_json, ensure_ascii=False).encode('utf-8'),
+        delivery_mode=DeliveryMode.PERSISTENT
+    )
+    await app.state.channel.default_exchange.publish(
+        message, routing_key=QUEUE_NAME
     )
     logger.info(f'Sent {valid_json} to queue {QUEUE_NAME}')
     return {'result': 'Success'}
+
+
+@app.head('/process')
+def process_head():
+    """Process endpoint HEAD."""
+    return JSONResponse()
