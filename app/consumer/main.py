@@ -58,7 +58,11 @@ if __name__ == '__main__':
     try:
         FILE = open(OUTPUT_FILE, 'a', buffering=1)
         channel.start_consuming()
+    except KeyboardInterrupt:
+        pass
     except Exception as e:
         logger.exception(e)
     finally:
+        channel.close()
         FILE.close()
+        logger.debug(f'{OUTPUT_FILE} closed')
