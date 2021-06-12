@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION:-latest}
+    restart: unless-stopped
+    volumes:
+      - ./db/rabbitmq:/var/lib/rabbitmq/mnesia
+    env_file:
+      - .env
+
+  consumer:
+    build:
+      context: .
+      dockerfile: ./docker/consumer.Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./output.txt:/app/output.txt
+    depends_on:
+      - rabbitmq
+    env_file:
+      - .env
+
+  producer:
+    build:
+      context: .
+      dockerfile: ./docker/producer.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    depends_on:
+      - rabbitmq
+    env_file:
+      - .env
