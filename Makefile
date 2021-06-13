@@ -61,7 +61,7 @@ stop-app:
 
 clean-all: clean
 	rm -rf app.egg-info
-	rm -rf db
+	sudo rm -rf db
 	rm -rf env
 	rm output.txt
 	docker-compose down --rmi all
