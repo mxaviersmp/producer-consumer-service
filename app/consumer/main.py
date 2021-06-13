@@ -13,6 +13,7 @@ RABBITMQ_CONNECTION_ATTEMPTS = SETTINGS.rabbitmq_connection_attempts
 RABBITMQ_RETRY_DELAY = SETTINGS.rabbitmq_retry_delay
 QUEUE_NAME = SETTINGS.rabbitmq_queue_name
 OUTPUT_FILE = pathlib.Path().absolute() / 'output.txt'
+FILE = None
 
 
 def callback(
@@ -26,12 +27,17 @@ def callback(
 
     Collects message and saves to OUTPUT_FILE.
     """
-    element = json.loads(body)
+    try:
+        element = json.loads(body)
 
-    FILE.writelines([json.dumps(element), '\n'])
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+        if FILE is not None:
+            FILE.writelines([json.dumps(element), '\n'])
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    logger.info(f' [x] Received {element} on queue {QUEUE_NAME}')
+        logger.info(f' [✓] Received {body!r} on queue {QUEUE_NAME}')
+    except json.decoder.JSONDecodeError:
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+        logger.info(f' [x] Rejected {body!r} on queue {QUEUE_NAME}')
 
 
 if __name__ == '__main__':
@@ -63,6 +69,8 @@ if __name__ == '__main__':
     except Exception as e:
         logger.exception(e)
     finally:
-        channel.close()
-        FILE.close()
+        if channel.is_open():
+            channel.close()
+        if FILE is not None:
+            FILE.close()
         logger.debug(f'{OUTPUT_FILE} closed')

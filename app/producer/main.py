@@ -45,17 +45,20 @@ async def shutdown():
 
     Disconnects from RabbitMQ HOST.
     """
-    app.state.connection.close()
+    if not app.state.channel.is_closed():
+        app.state.channel.close()
+    if not app.state.connection.is_closed():
+        app.state.connection.close()
 
 
 @app.get('/')
-async def read_root():
+async def root():
     """Root endpoint to check status."""
     return {'status': 'ok'}
 
 
 @app.head('/')
-def read_root_head():
+def root_head():
     """Root endpoint HEAD."""
     return JSONResponse()
 
