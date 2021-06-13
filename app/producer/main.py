@@ -49,13 +49,13 @@ async def shutdown():
 
 
 @app.get('/')
-async def read_root():
+async def root():
     """Root endpoint to check status."""
     return {'status': 'ok'}
 
 
 @app.head('/')
-def read_root_head():
+def root_head():
     """Root endpoint HEAD."""
     return JSONResponse()
 

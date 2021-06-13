@@ -3,9 +3,11 @@
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
     "cSpell.words": [
-        "rabbitmq",
         "asyncio",
         "getenv",
+        "pydantic",
+        "pytest",
+        "rabbitmq",
         "venv"
     ]
 }
