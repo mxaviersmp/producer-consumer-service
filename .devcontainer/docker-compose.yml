@@ -34,5 +34,5 @@ services:
     image: rabbitmq:${RABBITMQ_VERSION:-latest}-management
     restart: unless-stopped
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
