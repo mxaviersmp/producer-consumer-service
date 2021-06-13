@@ -1,8 +1,14 @@
 name: Lint and Test
 on: [push]
 
+
 jobs:
   build:
+    services:
+      rabbitmq:
+        image: rabbitmq:3
+        ports:
+          - 5672:5672
 
     runs-on: ubuntu-latest
     strategy:
