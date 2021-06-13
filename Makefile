@@ -1,9 +1,9 @@
 help:
 	@echo "available commands"
-	@echo " - venv              : creates development environment"
+	@echo " - venv              : creates the development environment"
 	@echo " - clean             : clean temporary folders and files"
-	@echo " - lint              : checks code style"
-	@echo " - test              : runs all unit tests"
+	@echo " - lint              : checks code style and type checks"
+	@echo " - test              : runs all unit and integration tests"
 	@echo " - coverage          : runs coverage report"
 	@echo " - dev-producer      : starts producer api in development environment"
 	@echo " - dev-consumer      : starts consumer in development environment"
@@ -46,14 +46,17 @@ dev-producer: venv
 dev-consumer: venv
 	. env/bin/activate; python app/consumer/main.py
 
-build-containers:
+build-app:
 	docker-compose pull
 	docker-compose build
 
-start-containers: build-containers
+logs-app:
+	docker-compose logs -f --tail 20
+
+start-app: build-containers
 	docker-compose up -d
 
-stop-containers:
+stop-app:
 	docker-compose stop
 
 clean-all: clean

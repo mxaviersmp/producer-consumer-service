@@ -4,7 +4,9 @@
     "python.linting.enabled": true,
     "cSpell.words": [
         "asyncio",
+        "devcontainer",
         "getenv",
+        "mypy",
         "pydantic",
         "pytest",
         "rabbitmq",
