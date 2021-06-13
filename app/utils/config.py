@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     rabbitmq_host: str = 'localhost'
     rabbitmq_connection_attempts: int = 10
     rabbitmq_retry_delay: int = 5
-    rabbitmq_queue_name: str = 'test'
+    rabbitmq_queue_name: str = 'default'
 
 
 SETTINGS = Settings()

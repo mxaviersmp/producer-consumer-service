@@ -45,10 +45,12 @@ async def shutdown():
 
     Disconnects from RabbitMQ HOST.
     """
-    if not app.state.channel.is_closed():
-        app.state.channel.close()
-    if not app.state.connection.is_closed():
-        app.state.connection.close()
+    if not app.state.channel.is_closed:
+        await app.state.channel.close()
+        logger.debug('channel closed')
+    if not app.state.connection.is_closed:
+        await app.state.connection.close()
+        logger.debug('connection closed')
 
 
 @app.get('/')

@@ -40,7 +40,8 @@ def callback(
         logger.info(f' [x] Rejected {body!r} on queue {QUEUE_NAME}')
 
 
-if __name__ == '__main__':
+def consume_queue():
+    """Consumes from the queue using the callback."""
     credentials = pika.PlainCredentials(USERNAME, PASSWORD)
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
@@ -62,15 +63,23 @@ if __name__ == '__main__':
 
     logger.info(' [*] Waiting for messages on queue.')
     try:
-        FILE = open(OUTPUT_FILE, 'a', buffering=1)
         channel.start_consuming()
     except KeyboardInterrupt:
         pass
     except Exception as e:
         logger.exception(e)
     finally:
-        if channel.is_open():
+        if channel.is_open:
+            logger.debug('channel closed')
             channel.close()
-        if FILE is not None:
-            FILE.close()
+        if connection.is_open:
+            logger.debug('connection closed')
+            connection.close()
+
+
+if __name__ == '__main__':
+    FILE = open(OUTPUT_FILE, 'a', buffering=1)
+    consume_queue()
+    if FILE is not None:
+        FILE.close()
         logger.debug(f'{OUTPUT_FILE} closed')

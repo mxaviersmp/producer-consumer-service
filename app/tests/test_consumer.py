@@ -16,32 +16,32 @@ def test_callback(tmpdir, mocker):
         def basic_nack(self, delivery_tag, requeue):
             self.deliveries.append((delivery_tag, requeue))
 
-    d = tmpdir.mkdir('consumer')
+    directory = tmpdir.mkdir('consumer')
 
-    file_write_default = d.join('output.txt')
+    file_name = directory.join('output.txt')
 
-    filename_write_default = os.path.join(
-        file_write_default.dirname, file_write_default.basename
+    file_path = os.path.join(
+        file_name.dirname, file_name.basename
     )
 
-    fileobj = open(filename_write_default, 'a', buffering=1)
+    fileobj = open(file_path, 'a', buffering=1)
     mocker.patch('app.consumer.main.FILE', fileobj)
 
     pika_mock = PikaMock()
     callback(pika_mock, pika_mock, pika_mock, b'{"test": 1}')
 
-    with open(file_write_default, 'r') as f:
+    with open(file_name, 'r') as f:
         file_contents = f.readlines()
 
-    assert pika_mock.deliveries == [1]
-    assert file_contents == ['{"test": 1}\n']
+    assert pika_mock.deliveries == [1], 'Failed to ack message'
+    assert file_contents == ['{"test": 1}\n'], 'Wrong file content'
 
     callback(pika_mock, pika_mock, pika_mock, b"{'test': 1}")
 
-    with open(file_write_default, 'r') as f:
+    with open(file_name, 'r') as f:
         file_contents = f.readlines()
 
-    assert pika_mock.deliveries == [1, (1, False)]
-    assert file_contents == ['{"test": 1}\n']
+    assert pika_mock.deliveries == [1, (1, False)], 'Failed to ack message'
+    assert file_contents == ['{"test": 1}\n'], 'Wrong file content'
 
     fileobj.close()
