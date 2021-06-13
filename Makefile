@@ -1,10 +1,16 @@
 help:
 	@echo "available commands"
-	@echo " - venv      : creates development environment"
-	@echo " - clean     : clean temporary folders and files"
-	@echo " - lint      : checks code style"
-	@echo " - test      : runs all unit tests"
-	@echo " - coverage  : runs coverage report"
+	@echo " - venv              : creates development environment"
+	@echo " - clean             : clean temporary folders and files"
+	@echo " - lint              : checks code style"
+	@echo " - test              : runs all unit tests"
+	@echo " - coverage          : runs coverage report"
+	@echo " - dev-producer      : starts producer api in development environment"
+	@echo " - dev-consumer      : starts consumer in development environment"
+	@echo " - build-containers  : pulls and builds docker containers for rabbitmq, producer and consumer"
+	@echo " - start-containers  : starts docker containers for rabbitmq, producer and consumer"
+	@echo " - stop-containers   : stop docker containers for rabbitmq, producer and consumer"
+	@echo " - clean-all         : removes environment, volumes, containers and images"
 
 venv:
 	[ -d "./env" ] || ( \
@@ -20,6 +26,7 @@ venv:
 
 clean:
 	rm -rf `find . -type d -name .pytest_cache`
+	rm -rf `find . -type d -name .mypy_cache`
 	rm -rf `find . -type d -name __pycache__`
 	rm -rf `find . -type d -name .ipynb_checkpoints`
 	rm -f .coverage
@@ -38,3 +45,20 @@ dev-producer: venv
 
 dev-consumer: venv
 	. env/bin/activate; python app/consumer/main.py
+
+build-containers:
+	docker-compose pull
+	docker-compose build
+
+start-containers: build-containers
+	docker-compose up -d
+
+stop-containers:
+	docker-compose stop
+
+clean-all: clean
+	rm -rf app.egg-info
+	rm -rf db
+	rm -rf env
+	rm output.txt
+	docker-compose down --rmi all
