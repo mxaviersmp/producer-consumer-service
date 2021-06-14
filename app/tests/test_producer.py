@@ -17,7 +17,7 @@ def test_get_root():
 def test_head_root():
     """Test '/' endpoint head response."""
     response = client.head('/')
-    assert response.status_code == 200, 'Get not successfull'
+    assert response.status_code == 200, 'Head not successfull'
     assert response.headers == {
         'content-length': '4',
         'content-type': 'application/json'
@@ -56,19 +56,20 @@ def test_post_process(mocker):
             }
         }
     })
-    assert response.status_code == 200, 'Get not successfull'
+    assert response.status_code == 200, 'Post not successfull'
     assert response.json() == {'result': 'Success'}, 'Json response unexpected'
 
     response = client.post('/process', json='1')
-    assert response.status_code == 422, 'Validation failed'
+    assert response.status_code == 422, 'Validation failed on invalid json'
     resp_json = response.json()
-    assert resp_json['detail'][0]['msg'] == 'value is not a valid dict', 'Wrong msg'
+    msg = resp_json['detail'][0]['msg']
+    assert msg == 'value is not a valid dict', 'Wrong validation msg'
 
 
 def test_head_process():
     """Test '/process' endpoint head response."""
     response = client.head('/process')
-    assert response.status_code == 200, 'Get not successfull'
+    assert response.status_code == 200, 'Head not successfull'
     assert response.headers == {
         'content-length': '4',
         'content-type': 'application/json'

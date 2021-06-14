@@ -40,7 +40,7 @@ def test_produce_consume_message(mocker, tmpdir):
     }
     with TestClient(app) as client:
         response = client.post('/process', json=data)
-        assert response.status_code == 200, 'Get not successfull'
+        assert response.status_code == 200, 'Post not successfull'
     consumer.terminate()
     fileobj.close()
 

@@ -33,15 +33,15 @@ def test_callback(tmpdir, mocker):
     with open(file_name, 'r') as f:
         file_contents = f.readlines()
 
-    assert pika_mock.deliveries == [1], 'Failed to ack message'
-    assert file_contents == ['{"test": 1}\n'], 'Wrong file content'
+    assert pika_mock.deliveries == [1], 'Failed to ack message when received'
+    assert file_contents == ['{"test": 1}\n'], 'Wrong file content when received'
 
     callback(pika_mock, pika_mock, pika_mock, b"{'test': 1}")
 
     with open(file_name, 'r') as f:
         file_contents = f.readlines()
 
-    assert pika_mock.deliveries == [1, (1, False)], 'Failed to ack message'
-    assert file_contents == ['{"test": 1}\n'], 'Wrong file content'
+    assert pika_mock.deliveries == [1, (1, False)], 'Failed to ack message when rejected'
+    assert file_contents == ['{"test": 1}\n'], 'Wrong file content when rejected'
 
     fileobj.close()
