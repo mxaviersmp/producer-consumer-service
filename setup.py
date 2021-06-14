@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 LICENSE = 'MIT License'
 
 CLASSIFIERS = [
-    'Development Status :: 1 - Planning',
+    'Development Status :: 3 - Alpha',
     'Programming Language :: Python :: 3',
     'Operating System :: OS Independent',
 ]
@@ -17,7 +17,7 @@ print(DEPENDENCIES)
 
 setup(
     name='app',
-    version='0.0.1',
+    version='0.1.0',
     author='Matheus Xavier',
     author_email='matheus.sampaio011@gmail.com',
     license=LICENSE,
