@@ -3,7 +3,7 @@ on: [push]
 
 
 jobs:
-  build:
+  lint_test:
     services:
       rabbitmq:
         image: rabbitmq:3
